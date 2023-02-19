@@ -1,73 +1,95 @@
 #include <iostream>
 using namespace std;
 
-// is_safe(int row, int col) will return whether or not the spot at [row][col] (of the N by N board)
-// does not have a 1 in the same row to its left, diagonal up-left, and diagonal down-left.
-// Returns true if it's all 0s, false if there's any occurrences of 1.
+//returns whether spot at r and c is safe or not
+bool is_safe(int* board, int curr_row, int curr_col, int N){
 
-//global
-const int N = 10;
-int board[N][N] = {};
-
-void reset(){
-   for(int i=0; i < N; i++){
-       for(int j=0; j<N; j++){
-           board[i][j] = 0;
-       }
-   }
-}
-
-int tempBoard [4][4] = {{1,0,0,0},
-                       {0,0,0,0},
-                       {0,0,0,0},
-                       {0,0,0,0}};
-int tempN = 4;
-
-bool is_safe(int tempBoard[4][4], int curr_row, int curr_col){
-
-   //Check the all spots Left of current_row, current_col
-    for(int c = curr_col; c >= 0; c--){
-        if(tempBoard[curr_row][c] == 1){
+    //check in same col
+    for (int i = 0; i < curr_row; i++) {
+        if (board[i] == curr_col) {
             return false;
         }
     }
 
-   //Check the all spots Up-Left of current_row, current_col
-    for(int r = curr_row, c = curr_col; r >= 0 && c >= 0; r--, c--){
-        if(tempBoard[r][c] == 1){
+    //check diagonal up-left
+    for (int i = curr_row, j = curr_col; i >= 0 && j >= 0; i--, j--) {
+        if (board[i] == j) {
             return false;
         }
     }
 
-   //Check the all spots Down-Left of current_row, current_col
-    for(int r = curr_row, c = curr_col; c >= 0 && r < tempN; r++, c--){
-        if(tempBoard[r][c] == 1){
+    //check diagonal down-left
+    for (int i = curr_row, j = curr_col; i >= 0 && j < N; i--, j++) {
+        if (board[i] == j) {
             return false;
         }
     }
-   return true;
+
+    return true;
 }
 
-void eight_queens(){
+bool eight_queens(int curr_row, int* board, int N){
 
+    //solved, all queens have been placed
+    if (curr_row == N){
+        return true;
+    }
+
+    //try each col in curr_row
+    for (int curr_col = 0; curr_col < N; curr_col++) {
+        if (is_safe(board, curr_row, curr_col, N)) {
+
+            //place queen
+            board[curr_row] = curr_col;
+
+            //try placing the remaining queenz
+            if(eight_queens(curr_row + 1, board, N)){
+                return true;
+            }
+
+            ///backtracking, removing queen at this spot
+            board[curr_row] = -1;
+        }
+    }
+
+    //tried all cols, nothing worked :(
+    return false;
 }
-void display(){
-   for(int i=0; i < tempN; i++){
-       for(int j=0; j<tempN; j++){
-           if(tempBoard[i][j] == 0){
-               cout << "_ ";
-           }
-           else{
-               cout << "Q ";
-           }
-       }
-       cout << endl;
-   }
+
+//display the board!
+void display(int* board, int N){
+
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+            if(board[i] == j){
+                cout<<"Q ";
+            }
+            else{
+                cout<<". ";
+            }
+        }
+        cout<<endl;
+    }
 }
 
 int main() {
-   //reset();
-   display();
-   cout << boolalpha << is_safe(tempBoard, 0, 3);
+    int N;
+
+    cout<<"Enter an integer for n x n board: ";
+    cin>> N;
+
+    int board[N];
+    for(int i = 0; i < N; i++){
+        board[i] = -1;
+    }
+
+    if(eight_queens(0, board, N)){
+        display(board, N);
+    }
+    else{
+
+    }
+
+
 }
 
